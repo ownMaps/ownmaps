@@ -165,9 +165,11 @@ class ownmaps_mapbox
 
 		$OMjson->getGEOJSON( $URL ); $this->setBOUNDS( $OMjson->boundsswlat, $OMjson->boundsswlon ); $this->setBOUNDS( $OMjson->boundsnelat, $OMjson->boundsnelon );
 
+		$tmp  = "var geojson = ".$OMjson->response.";";
+
+		$tmp .= "var geojsonLayer = L.geoJson( geojson, { style: { fillColor: 'gray', color: 'black', weight: 1 } } ).addTo( map_".$this->map." );";
 
 
-		$tmp  = "var geojsonLayer = L.mapbox.featureLayer().loadURL('".$URL."').addTo( map_".$this->map." );";
 
 		print $tmp;
 	}

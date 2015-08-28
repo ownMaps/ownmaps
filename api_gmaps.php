@@ -169,6 +169,8 @@ class ownmaps_gmaps
 
 		$tmp  = "map_".$this->map.".data.loadGeoJson( '".$URL."' );";
 
+		$tmp .= "map_".$this->map.".data.setStyle( { fillColor: 'gray', strokeColor: 'black', strokeWeight: 1 } );";
+
 		print $tmp;
 	}
 

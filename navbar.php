@@ -19,7 +19,7 @@ print "<span class=\"icon-bar\"></span>";
 print "<span class=\"icon-bar\"></span>";
 print "</button>";
 
-print "<a class=\"navbar-brand\" href=\"".$_home_url."\"><span class=\"glyphicon glyphicon-home\"></span></a>";
+print "<a class=\"navbar-brand\" href=\"".$_home_url."\">ownMaps</a>";
 
 print "</div>";
 

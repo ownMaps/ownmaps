@@ -7,7 +7,7 @@
 // Your Maps Under Your Control
 // =====================================================================
 
-$_home_url = "#";
+$_home_url = "http://ownmaps.org/";
 
 $_ctrl_bar = TRUE;
 
