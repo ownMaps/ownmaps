@@ -23,6 +23,9 @@ class ownmaps_leaflet
 	var $boundsnelat;
 	var $boundsnelon;
 	var $countid;
+	var $color;
+	var $weight;
+	var $fillColor;
 
 	function ownmaps_leaflet()
 	{
@@ -38,7 +41,7 @@ class ownmaps_leaflet
 		$this->mapid    = "omll";
 		$this->mapcount = 0;
 
-		$this->tiles    = "'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'";
+		$this->tiles    = "'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: 'Map data &copy; <a href=\"http://openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>' }";
 		$this->tileskey = "";
 
 		$this->centerlat   =    0;
@@ -51,6 +54,10 @@ class ownmaps_leaflet
 		$this->boundsnelon = -999;
 
 		$this->countid = 0;
+
+		$this->color     = "black";
+		$this->weight    = 1;
+		$this->fillcolor = "gray";
 	}
 
 	function setBOUNDS( $LAT, $LON )
@@ -99,6 +106,7 @@ class ownmaps_leaflet
 //		$tmp .= "center: [".$LAT.",".$LON."], ";
 //		$tmp .= "zoom: ".$ZOOM.", ";
 		$tmp .= "layers: L.tileLayer( ".$this->tiles." ), ";
+
 
 
 
@@ -159,6 +167,24 @@ class ownmaps_leaflet
 		print $tmp;
 	}
 
+	function addRECTANGLE( $SWLAT=0, $SWLON=0, $NELAT=0, $NELON=0 )
+	{
+		$this->countid++; $this->setBOUNDS( $SWLAT, $SWLON ); $this->countid++; $this->setBOUNDS( $NELAT, $NELON );
+
+		$tmp  = "var r_".$this->mapid.$this->countid." = L.rectangle( [[".$SWLAT.",".$SWLON."],[".$NELAT.",".$NELON."]], { color: '".$this->color."', weight: ".$this->weight.", fillColor: '".$this->fillcolor."' } ).addTo( map_".$this->map." );";
+
+		print $tmp;
+	}
+
+	function addCIRCLE( $LAT=0, $LON=0, $RAD=1000 )
+	{
+		$this->countid++; $this->setBOUNDS( $LAT, $LON );
+
+		$tmp  = "var c_".$this->mapid.$this->countid." = L.circle( [".$LAT.",".$LON."], ".$RAD.", { color: '".$this->color."', weight: ".$this->weight.", fillColor: '".$this->fillcolor."' } ).addTo( map_".$this->map." );";
+
+		print $tmp;
+	}
+
 	function addGEOJSON( $URL="" )
 	{
 		global $OMjson;
@@ -167,9 +193,7 @@ class ownmaps_leaflet
 
 		$tmp  = "var geojson = ".$OMjson->response.";";
 
-		$tmp .= "var geojsonLayer = L.geoJson( geojson, { style: { fillColor: 'gray', color: 'black', weight: 1 } } ).addTo( map_".$this->map." );";
-
-
+		$tmp .= "var geojsonLayer = L.geoJson( geojson, { style: { color: '".$this->color."', weight: ".$this->weight.", fillColor: '".$this->fillcolor."' } } ).addTo( map_".$this->map." );";
 
 		print $tmp;
 	}
@@ -183,17 +207,15 @@ class ownmaps_leaflet
 
 	function addLAYERS()
 	{
-		$osm  = "&copy; <a href=\"http://openstreetmap.org/copyright\">OpenStreetMap</a> contributors";
-
 		$tmp = "L.control.layers( { ";
-		$tmp .= "'OSM':                L.tileLayer( 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',                       { attribution: '".$osm."' } ), ";
-		$tmp .= "'Mapnik BW':          L.tileLayer( 'http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png',           { attribution: '".$osm."' } ), ";
-		$tmp .= "'OSM DE':             L.tileLayer( 'http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',            { attribution: '".$osm."' } ), ";
-		$tmp .= "'OSM HOT':            L.tileLayer( 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',                    { attribution: '".$osm.", Tiles courtesy of <a href=\"http://hot.openstreetmap.org/\" target=\"_blank\">Humanitarian OpenStreetMap Team</a>' } ), ";
-		$tmp .= "'OpenSeaMap':         L.tileLayer( 'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',                     { attribution: '".$osm.", Map data &copy; <a href=\"http://www.openseamap.org\">OpenSeaMap</a> contributors' } ), ";
-		$tmp .= "'OpenMapSurfer':      L.tileLayer( 'http://openmapsurfer.uni-hd.de/tiles/roads/x={x}&y={y}&z={z}',            { attribution: '".$osm.", Imagery from <a href=\"http://giscience.uni-hd.de/\">GIScience Research Group @ University of Heidelberg</a>' } ), ";
-		$tmp .= "'OpenMapSurfer gray': L.tileLayer( 'http://openmapsurfer.uni-hd.de/tiles/roadsg/x={x}&y={y}&z={z}',           { attribution: '".$osm.", Imagery from <a href=\"http://giscience.uni-hd.de/\">GIScience Research Group @ University of Heidelberg</a>' } ), ";
-		$tmp .= "'Mapbox':             L.tileLayer( 'http://{s}.tiles.mapbox.com/v3/landplanner.map-xswoybbb/{z}/{x}/{y}.png', { attribution: '".$osm.", Imagery from <a href=\"http://mapbox.com/about/maps/\">Mapbox</a>' } )";
+		$tmp .= "'OSM':                L.tileLayer( 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',                       { attribution: 'Map data &copy; <a href=\"http://openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>' } ), ";
+		$tmp .= "'Mapnik BW':          L.tileLayer( 'http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png',           { attribution: 'Map data &copy; <a href=\"http://openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>' } ), ";
+		$tmp .= "'OSM DE':             L.tileLayer( 'http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png',            { attribution: 'Map data &copy; <a href=\"http://openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>' } ), ";
+		$tmp .= "'OSM HOT':            L.tileLayer( 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',                    { attribution: 'Imagery &copy; <a href=\"http://hot.openstreetmap.org/\" target=\"_blank\">Humanitarian OpenStreetMap Team</a>' } ), ";
+		$tmp .= "'OpenSeaMap':         L.tileLayer( 'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',                     { attribution: 'Imagery &copy; <a href=\"http://www.openseamap.org/\">OpenSeaMap</a> contributors' } ), ";
+		$tmp .= "'OpenMapSurfer':      L.tileLayer( 'http://openmapsurfer.uni-hd.de/tiles/roads/x={x}&y={y}&z={z}',            { attribution: 'Imagery &copy; <a href=\"http://giscience.uni-hd.de/\">GIScience Research Group @ University of Heidelberg</a>' } ), ";
+		$tmp .= "'OpenMapSurfer gray': L.tileLayer( 'http://openmapsurfer.uni-hd.de/tiles/roadsg/x={x}&y={y}&z={z}',           { attribution: 'Imagery &copy; <a href=\"http://giscience.uni-hd.de/\">GIScience Research Group @ University of Heidelberg</a>' } ), ";
+		$tmp .= "'Mapbox':             L.tileLayer( 'http://{s}.tiles.mapbox.com/v3/landplanner.map-xswoybbb/{z}/{x}/{y}.png', { attribution: 'Imagery &copy; <a href=\"http://mapbox.com/about/maps/\">Mapbox</a>' } )";
 		$tmp .= " } ).addTo( map_".$this->map." );";
 
 		print $tmp;

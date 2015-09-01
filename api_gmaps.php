@@ -23,6 +23,9 @@ class ownmaps_gmaps
 	var $boundsnelat;
 	var $boundsnelon;
 	var $countid;
+	var $color;
+	var $weight;
+	var $fillColor;
 
 	function ownmaps_gmaps()
 	{
@@ -51,6 +54,10 @@ class ownmaps_gmaps
 		$this->boundsnelon = -999;
 
 		$this->countid = 0;
+
+		$this->color     = "black";
+		$this->weight    = 1;
+		$this->fillcolor = "gray";
 	}
 
 	function setBOUNDS( $LAT, $LON )
@@ -99,10 +106,11 @@ class ownmaps_gmaps
 		$tmp .= "center: new google.maps.LatLng(".$this->centerlat.",".$this->centerlon."), ";
 		$tmp .= "zoom: ".$this->centerzoom.", ";
 		$tmp .= "mapTypeId: google.maps.MapTypeId.".$this->tiles.", ";
-		$tmp .= "panControl: false, ";
-//		$tmp .= "scaleControl: true, ";
+		$tmp .= "streetViewControl: true, streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_TOP }, ";
 //		$tmp .= "overviewMapControl: true, ";
-		$tmp .= "zoomControl: true";
+//		$tmp .= "scaleControl: true, ";
+		$tmp .= "panControl: false, ";
+		$tmp .= "zoomControl: true, zoomControlOptions: { style: google.maps.ZoomControlStyle.SMALL, position: google.maps.ControlPosition.LEFT_TOP }";
 		$tmp .= " } );";
 
 		print $tmp;
@@ -159,17 +167,33 @@ class ownmaps_gmaps
 		print $tmp;
 	}
 
+	function addRECTANGLE( $SWLAT=0, $SWLON=0, $NELAT=0, $NELON=0 )
+	{
+		$this->countid++; $this->setBOUNDS( $SWLAT, $SWLON ); $this->countid++; $this->setBOUNDS( $NELAT, $NELON );
+
+		$tmp  = "var r_".$this->mapid.$this->countid." = new google.maps.Rectangle( { map: map_".$this->map.", bounds: new google.maps.LatLngBounds( new google.maps.LatLng(".$SWLAT.",".$SWLON."),new google.maps.LatLng(".$NELAT.",".$NELON.")), strokeColor: '".$this->color."', strokeWeight: ".$this->weight.", fillColor: '".$this->fillcolor."' } );";
+
+		print $tmp;
+	}
+
+	function addCIRCLE( $LAT=0, $LON=0, $RAD=1000 )
+	{
+		$this->countid++; $this->setBOUNDS( $LAT, $LON );
+
+		$tmp  = "var c_".$this->mapid.$this->countid." = new google.maps.Circle( { map: map_".$this->map.", center: new google.maps.LatLng(".$LAT.",".$LON."), radius: ".$RAD.", strokeColor: '".$this->color."', strokeWeight: ".$this->weight.", fillColor: '".$this->fillcolor."' } );";
+
+		print $tmp;
+	}
+
 	function addGEOJSON( $URL="" )
 	{
 		global $OMjson;
 
 		$OMjson->getGEOJSON( $URL ); $this->setBOUNDS( $OMjson->boundsswlat, $OMjson->boundsswlon ); $this->setBOUNDS( $OMjson->boundsnelat, $OMjson->boundsnelon );
 
-
-
 		$tmp  = "map_".$this->map.".data.loadGeoJson( '".$URL."' );";
 
-		$tmp .= "map_".$this->map.".data.setStyle( { fillColor: 'gray', strokeColor: 'black', strokeWeight: 1 } );";
+		$tmp .= "map_".$this->map.".data.setStyle( { strokeColor: '".$this->color."', strokeWeight: ".$this->weight.", fillColor: '".$this->fillcolor."' } );";
 
 		print $tmp;
 	}

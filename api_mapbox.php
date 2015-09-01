@@ -23,6 +23,9 @@ class ownmaps_mapbox
 	var $boundsnelat;
 	var $boundsnelon;
 	var $countid;
+	var $color;
+	var $weight;
+	var $fillColor;
 
 	function ownmaps_mapbox()
 	{
@@ -51,6 +54,10 @@ class ownmaps_mapbox
 		$this->boundsnelon = -999;
 
 		$this->countid = 0;
+
+		$this->color     = "black";
+		$this->weight    = 1;
+		$this->fillcolor = "gray";
 	}
 
 	function setBOUNDS( $LAT, $LON )
@@ -100,6 +107,7 @@ class ownmaps_mapbox
 //		$tmp .= "zoom: ".$ZOOM.", ";
 
 		$tmp .= "accessToken: '".$this->tileskey."', ";
+
 
 
 		$tmp .= "zoomControl: true";
@@ -159,6 +167,24 @@ class ownmaps_mapbox
 		print $tmp;
 	}
 
+	function addRECTANGLE( $SWLAT=0, $SWLON=0, $NELAT=0, $NELON=0 )
+	{
+		$this->countid++; $this->setBOUNDS( $SWLAT, $SWLON ); $this->countid++; $this->setBOUNDS( $NELAT, $NELON );
+
+		$tmp  = "var r_".$this->mapid.$this->countid." = L.rectangle( [[".$SWLAT.",".$SWLON."],[".$NELAT.",".$NELON."]], { color: '".$this->color."', weight: ".$this->weight.", fillColor: '".$this->fillcolor."' } ).addTo( map_".$this->map." );";
+
+		print $tmp;
+	}
+
+	function addCIRCLE( $LAT=0, $LON=0, $RAD=1000 )
+	{
+		$this->countid++; $this->setBOUNDS( $LAT, $LON );
+
+		$tmp  = "var c_".$this->mapid.$this->countid." = L.circle( [".$LAT.",".$LON."], ".$RAD.", { color: '".$this->color."', weight: ".$this->weight.", fillColor: '".$this->fillcolor."' } ).addTo( map_".$this->map." );";
+
+		print $tmp;
+	}
+
 	function addGEOJSON( $URL="" )
 	{
 		global $OMjson;
@@ -167,9 +193,7 @@ class ownmaps_mapbox
 
 		$tmp  = "var geojson = ".$OMjson->response.";";
 
-		$tmp .= "var geojsonLayer = L.geoJson( geojson, { style: { fillColor: 'gray', color: 'black', weight: 1 } } ).addTo( map_".$this->map." );";
-
-
+		$tmp .= "var geojsonLayer = L.geoJson( geojson, { style: { color: '".$this->color."', weight: ".$this->weight.", fillColor: '".$this->fillcolor."' } } ).addTo( map_".$this->map." );";
 
 		print $tmp;
 	}
